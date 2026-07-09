@@ -1,0 +1,15 @@
+Begin Time (s)	End Time (s)	Begin File	Selection	View	Channel	template	scores
+0.619155192274315	1.20749957984556	PikaConvoWav.wav	38	Spectrogram 1	1	Large Training Set.wav-70	0.456172221639139
+3.07442578232763	3.4706185585034	PikaConvoWav.wav	42	Spectrogram 1	1	Large Training Set.wav-70	0.374480183479279
+4.80379028488693	5.32262481993017	PikaConvoWav.wav	44	Spectrogram 1	1	Large Training Set.wav-70	0.449442642665155
+6.21290210178709	6.69449559413863	PikaConvoWav.wav	46	Spectrogram 1	1	Large Training Set.wav-70	0.406825287471268
+9.73568164403751	10.3880765687406	PikaConvoWav.wav	50	Spectrogram 1	1	Large Training Set.wav-70	0.461320214051762
+18.0836016502188	18.4797944263946	PikaConvoWav.wav	54	Spectrogram 1	1	Large Training Set.wav-70	0.374852208516275
+19.5781141832947	20.1634037068008	PikaConvoWav.wav	56	Spectrogram 1	1	Large Training Set.wav-70	0.397691245126472
+20.7523740307115	22.1962727423177	PikaConvoWav.wav	58	Spectrogram 1	1	Large Training Set.wav-70	0.375730189955692
+28.2462868751351	28.6424796513109	PikaConvoWav.wav	73	Spectrogram 1	1	Large Training Set.wav-70	0.370557916174104
+32.5590230420114	32.9552158181872	PikaConvoWav.wav	76	Spectrogram 1	1	Large Training Set.wav-70	0.423766705163868
+34.3366510073208	34.8333534841823	PikaConvoWav.wav	32	Spectrogram 1	1	Large Training Set.wav-24	0.369121821086665
+34.9929434530208	35.7302063090004	PikaConvoWav.wav	78	Spectrogram 1	1	Large Training Set.wav-70	0.361070787780508
+36.8717592088877	37.1825512688877	PikaConvoWav.wav	81	Spectrogram 1	1	Large Training Set.wav-70	0.368361733091478
+37.4536694004702	37.7161160204702	PikaConvoWav.wav	91	Spectrogram 1	1	Large Training Set.wav-46	0.37178011153303
