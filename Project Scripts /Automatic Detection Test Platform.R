@@ -199,7 +199,7 @@ optimization <- optimize_template_detector(
 # )
 # Spectrographical_features$start <- PikaReference$start
 # Spectrographical_features$end   <- PikaReference$end
-# Spectrographical_features$label <- "1"
+# Spectrographical_features$label <- "1" # Pika
 # str(Spectrographical_features)
 #
 # exp_raven(

@@ -51,8 +51,8 @@ wl.freq                    <- WindowLength_Freq
 # ==============================================================================
 
 # Takes annotation table, returns spectro analysis PCA PC1 & PC2 with NAs removed
-# Installs and loads libraries needed
-LoadPackages <- function(PackageList) {
+# Installs and loads libraries needed to be archived
+Load_Packages <- function(PackageList) {
   NeededPackages <- PackageList[!(PackageList %in% (.packages()))]
   inPackages <- NeededPackages[!(NeededPackages %in% installed.packages()[, "Package"])]
   
@@ -362,10 +362,31 @@ Sys.setenv(R_BLAS   = "/System/Library/Frameworks/Accelerate.framework/Framework
 Sys.setenv(R_LAPACK = "/System/Library/Frameworks/Accelerate.framework/Frameworks/vecLib.framework/Versions/Current/libLAPACK.dylib")
 Sys.setenv(MC_CORES = MaxCores)
 
+
+# ==============================================================================
+# SYSTEM SETUP (Change instructions per machine)
+# ==============================================================================
+library(sketchy)
+ProgramPackages = c(
+  "tuneR",
+  "warbleR",
+  "ohun",
+  "Rraven",
+  "reticulate",
+  "readr",
+  "seewave",
+  "ggplot2",
+  "parallel",
+  "bioacoustics",
+  "compiler"
+)
+load_packages(ProgramPackages)
+
 # Compile functions — speeds up R-level loops and logic
 Spectro_Analyze  <- cmpfun(Spectro_Analyze)
 Cepstral_Analyze <- cmpfun(Cepstral_Analyze)
 Cross_Correlate  <- cmpfun(Cross_Correlate)
 DetectCalls      <- cmpfun(DetectCalls)
 Filter_Duration  <- cmpfun(Filter_Duration)
-LoadPackages     <- cmpfile(LoadPackages)
+
+

@@ -38,7 +38,6 @@ ML_TrainingDataStorage <- "~/Documents/Automated-Pika-Detection/ML Training data
 PlotStorage <- "~/Library/CloudStorage/OneDrive-UCB-O365/Automated Detection Project/R/Plots"
 
 setwd(WorkingDirectory)
-# ==============================================================================
 
 # ==============================================================================
 # TRAINING — Load reference annotations and build templates
@@ -54,6 +53,7 @@ PikaReference <- imp_raven(
 )
 gc()
 gc()
+
 # Select representative templates from acoustic space
 PikaTemplate <- get_templates(
   reference   = PikaReference,
@@ -89,6 +89,7 @@ GenPikaAnn <- lapply(wav_files, function(wav) {
     FrequencyRange = FreqRange
   )
 })
+
 gc()
 gc()
 # Combine all detection tables into one dataframe
