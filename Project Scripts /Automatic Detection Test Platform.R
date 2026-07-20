@@ -1,25 +1,14 @@
-library(tuneR)
-library(warbleR)
-library(ohun)
-library(seewave)
-library(Rraven)
-library(ggplot2)
+# File Name:       Automated Detection Main
+# Author:          Ayooluwa Adeyinka
+# Created:         June 25, 2026
+# Description:    This is where optimizations to the detection varibales can be stress tested.
+.
+# NOTE: mclapply is for only mac and linux systems
+# General Dependencies: tuneR, warbleR, ohun, Rraven, readr, reticulate, seewave, ggplot2,parallel
 
 
 
-WorkingDirectory <- "~/Documents/Automated-Pika-Detection/Target Files"
 
-setwd(WorkingDirectory)
-
-
-Sys.setenv(R_BLAS = "/System/Library/Frameworks/Accelerate.framework/Frameworks/vecLib.framework/Versions/Current/libBLAS.dylib")
-Sys.setenv(R_LAPACK = "/System/Library/Frameworks/Accelerate.framework/Frameworks/vecLib.framework/Versions/Current/libLAPACK.dylib")
-
-
-# repl_python(quiet = TRUE)
-
-Detection_Treshhold <- 0.345
-maxcores <- 14
 
 PikaWavTest <- readWave(
   "~/Documents/Automated-Pika-Detection/Target Files/Large Training Set.wav"
@@ -32,10 +21,10 @@ PikaConvoWav <- readWave(
 
 # Import all .txt selection tables from a folder
 PikaReference <- imp_raven(
-  path = "~/Library/CloudStorage/OneDrive-UCB-O365/Automated Detection Project/R/Target Files",
+  path = "~/Documents/Automated-Pika-Detection/Target Files",
   warbler.format = TRUE,
   # critical — converts to warbleR column names
-  all.data = TRUE         # only keep warbleR-relevant columns
+  all.data = FALSE         # only keep warbleR-relevant columns
 )
 gc()
 gc()
@@ -67,7 +56,8 @@ TestCorrelations1 <-
     templates = template,
     files = c("Large Training Set.wav"),
     path = "~/Documents/Automated-Pika-Detection/Target Files",
-    wl = 1024
+    wl =512,
+    wl.freq=1024
   )
 
 
@@ -76,7 +66,8 @@ TestCorrelations2 <-
     templates = template,
     files = c("PikaConvoWav.wav"),
     path = "~/Documents/Automated-Pika-Detection/Target Files",
-    wl = 1024
+    wl = 512,
+    wl.freq=1024
   )
 
 
@@ -109,33 +100,33 @@ detectiontest2 <-
     cores = maxcores
   )
 
-# detectiontest2 <- consensus_detection(
-#   detection = label_detection(
-#     reference = PikaReference,
-#     detection = detectiontest2,
-#     cores = maxcores
-#   ),
-#   by = "scores"
-#   ,
-#   cores = maxcores
-# )
+detectiontest2 <- consensus_detection(
+  detection = label_detection(
+    reference = PikaReference,
+    detection = detectiontest2,
+    cores = maxcores
+  ),
+  by = "scores"
+  ,
+  cores = maxcores
+)
 
 detectiontest2 <- merge_overlaps(detectiontest2, pb = TRUE, cores = maxcores)
 
 #diagnose detection for optimization
 diagnoses <- diagnose_detection(reference = PikaReference,
-                                detection = detectiontest1,
+                                detection = TESTER,
                                 cores = maxcores)
 
 # run optimization
-# optimization <-
-#   optimize_template_detector(
-#     template.correlations = TestCorrelations1,
-#     reference = PikaReference,
-#     threshold = seq(0.3, 0.6, 0.01),
-#     cores = maxcores,
-#     min.overlap = 0.6
-#   )
+optimization <-
+  optimize_template_detector(
+    template.correlations = TestCorrelations1,
+    reference = PikaReference,
+    threshold = seq(0.3, 0.6, 0.01),
+    cores = maxcores,
+    min.overlap = 0.6
+  )
 
 
 # exp_raven(
@@ -169,7 +160,7 @@ diagnoses <- diagnose_detection(reference = PikaReference,
 # plot spectrogram
 label_spectro(
   wave = PikaWavTest,
-  reference = PikaReference,
+  reference = TESTER,
   detection = detectiontest1,
   template.correlation = TestCorrelations1[[1]],
   flim = c(0, 22),
@@ -177,7 +168,8 @@ label_spectro(
   threshold = Detection_Treshhold,
   hop.size = 10,
   ovlp = 50,
-  palette = reverse.cm.colors
+  palette = reverse.cm.colors,
+  fast.dip = TRUE
 )
 
 label_spectro(
@@ -205,3 +197,27 @@ compare_methods(
   ovlp = Overlap,
   parallel = MaxCores,
 )
+
+# ML training data export
+# ==============================================================================
+# Remove non useful ML training  data columns
+Spectrographical_features$sound.files <- NULL
+Spectrographical_features$selec <- NULL
+# label for pikas
+Spectrographical_features$label <- "1"
+
+#Export ML training data to ML trainig data folder
+setwd(ML_TRainingDataStorage)
+write.table(
+  SpectroCoeff,
+  file = "SpectroFeatures.txt",
+  sep = "\t",
+  row.names = FALSE
+)
+# reset working directory
+setwd(WorkingDirectory)
+
+#   garbage collections
+
+gc()
+gc()

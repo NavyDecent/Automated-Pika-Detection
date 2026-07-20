@@ -5,8 +5,51 @@
 # General Dependencies: Base
 
 
+# DETECTION VARIABLES
+# ==============================================================================
+
+TemplateDetectionTreshhold <- 0.343   # Confidence score threshold
+MaxCores                   <- 14     # Max cores for parallel processing
+TemplateSubspaces          <- 3     #No of templates used -1
+FreqRange                  <- c(.9, 17) # Frequency range in kHz
+WindowLength               <- 512   # FFT time window length
+WindowLength_MFCC          <- 512   # used only for mfcc_stats
+# wl and wl.freq split not supported by mfcc_stats
+
+MaxCallDuration            <- 1        #Max duration
+MinCallDuration            <-.1        #Min duration
+WindowLength_Freq          <- 2048  # FFT Frequancy window length
+
+CepstralBands              <- 35     # Number of cepstral coefficiants calculated
+WarpedCepstralBands        <- 50     # Number of warped coefficiants calculated
+
+Smoothness                 <- .3     #smoothing value of spectrogragh
+HarmonicityBool            <- FALSE   #Calculate harmonicty
+
+Overlap                    <- 90     #Overlap of windows in FFT and Specrograghiical analyisis
+No.Harmonics               <- 2     #No of Harmonics to analyse per signal, the higher the better but may start to ignore fainter signals
+
+
+Speed_Fast                 <- TRUE  #Fast Computer
+
+CoorMethod                 <- "spearman" #Correletaion type
+CrossCorType               <- "fourier"    #Cross Correlation Type
+
+TypeDTW                    <- "fundamental"     #the type of contour to be detected in the dynamic time warping correlation
+
+# creates the object get() is looking for
+nharmonics                 <- No.Harmonics
+harmonicity                <- HarmonicityBool
+parallel                   <- MaxCores
+fast                       <- Speed_Fast
+ovlp                       <- Overlap
+fsmooth                    <- Smoothness
+wl                         <- WindowLength
+wl.freq                    <- WindowLength_Freq
+# ==============================================================================
 # FUNCTION DEFINITIONS
 # ==============================================================================
+
 # Takes annotation table, returns spectro analysis PCA PC1 & PC2 with NAs removed
 # Installs and loads libraries needed
 LoadPackages <- function(PackageList) {
@@ -14,12 +57,17 @@ LoadPackages <- function(PackageList) {
   inPackages <- NeededPackages[!(NeededPackages %in% installed.packages()[, "Package"])]
   
   if (length(inPackages) > 0) {
-    message("Installing missing packages: ", paste(inPackages, collapse = ", "))
+    message("Installing missing packages: ",
+            paste(inPackages, collapse = ", "))
     for (pack in inPackages) {
       tryCatch({
         install.packages(pack, dependencies = TRUE)
       }, error = function(e) {
-        cat("Skipping install due to error:", pack, "\n", conditionMessage(e), "\n")
+        cat("Skipping install due to error:",
+            pack,
+            "\n",
+            conditionMessage(e),
+            "\n")
         NeededPackages <<- NeededPackages[NeededPackages != pack]
       })
     }
@@ -37,7 +85,11 @@ LoadPackages <- function(PackageList) {
         library(pack, character.only = TRUE)
         cat("Loaded:", pack, "\n")
       }, error = function(e) {
-        cat("Skipping load due to error:", pack, "\n", conditionMessage(e), "\n")
+        cat("Skipping load due to error:",
+            pack,
+            "\n",
+            conditionMessage(e),
+            "\n")
       })
     }
   } else {
@@ -284,7 +336,7 @@ Filter_Duration <- function(AnnTable,
   
   AnnTable[!too_long & !too_short, ]
 }
-# Caps generated annotations to a reasoanable frequancy range 
+# Caps generated annotations to a reasoanable frequancy range
 Cap_Freq <- function(AnnTable, FreqRange) {
   if (!is.data.frame(AnnTable))
     stop("AnnTable must be a data frame")
@@ -304,7 +356,7 @@ Cap_Freq <- function(AnnTable, FreqRange) {
 }
 
 # ==============================================================================
-# SYSTEM OPTIMIZATIONS (UNIX/Mac)
+# SYSTEM OPTIMIZATIONS (UNIX/Mac) (Change destination per machine)
 # ==============================================================================
 Sys.setenv(R_BLAS   = "/System/Library/Frameworks/Accelerate.framework/Frameworks/vecLib.framework/Versions/Current/libBLAS.dylib")
 Sys.setenv(R_LAPACK = "/System/Library/Frameworks/Accelerate.framework/Frameworks/vecLib.framework/Versions/Current/libLAPACK.dylib")
@@ -316,3 +368,4 @@ Cepstral_Analyze <- cmpfun(Cepstral_Analyze)
 Cross_Correlate  <- cmpfun(Cross_Correlate)
 DetectCalls      <- cmpfun(DetectCalls)
 Filter_Duration  <- cmpfun(Filter_Duration)
+LoadPackages     <- cmpfile(LoadPackages)
