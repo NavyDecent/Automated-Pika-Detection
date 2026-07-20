@@ -1,7 +1,6 @@
-Project Documentation
-================
-Adeyinka Ayooluwa
-2026-07-09
+# Project Documentation
+
+Adeyinka Ayooluwa 2026-07-09
 
 ## Introduction
 

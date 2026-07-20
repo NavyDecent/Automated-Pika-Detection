@@ -43,7 +43,7 @@ Spectro_Analyze <- function(AnnTable) {
     
     tryCatch({
       SpectroCoeff <- spectro_analysis(
-        subset_table,
+        PikaTemplate,
         bp          = FreqRange,
         wl          = WindowLength,
         wl.freq     = WindowLength_Freq,
@@ -297,21 +297,30 @@ TemplateDetectionTreshhold <- 0.345   # Confidence score threshold
 MaxCores                   <- 14     # Max cores for parallel processing
 TemplateSubspaces          <- 3     #No of templates used -1
 FreqRange                  <- c(.9, 17) # Frequency range in kHz
-WindowLength               <- 1024   # FFT time window length
-WindowLength_MFCC          <- 1024   # used only for mfcc_stats
+WindowLength               <- 512   # FFT time window length
+WindowLength_MFCC          <- 512   # used only for mfcc_stats
 # wl and wl.freq split not supported by mfcc_stats
-WindowLength_Freq          <- 2048  # FFT Frequancy window length
-CepstralBands              <- 35     # Number of cepstral coefficiants calculated
-WarpedCepstralBands        <- 50     # Number of warped coefficiants calculated
-Smoothness                 <- .3     #smoothing value of spectrogragh
-HarmonicityBool            <- FALSE   #Calculate harmonicty
-Overlap                    <- 90     #Overlap of windows in FFT and Specrograghiical analyisis
-No.Harmonics               <- 8     #No of Harmonics to analyse per signal
-Speed_Fast                 <- TRUE  #Fast Compute
-CoorMethod                 <- "spearman" #Correletaion type
 MaxCallDuration            <- 1        #Max duration
 MinCallDuration            <- .1        #Min duration
+WindowLength_Freq          <- 2048  # FFT Frequancy window length
+
+CepstralBands              <- 35     # Number of cepstral coefficiants calculated
+WarpedCepstralBands        <- 50     # Number of warped coefficiants calculated
+
+Smoothness                 <- .3     #smoothing value of spectrogragh
+HarmonicityBool            <- FALSE   #Calculate harmonicty
+
+Overlap                    <- 90     #Overlap of windows in FFT and Specrograghiical analyisis
+No.Harmonics               <- 2     #No of Harmonics to analyse per signal 
+
+#TODO
+# -- higher harmonics is good and why 
+
+Speed_Fast                 <- TRUE  #Fast Computer
+
+CoorMethod                 <- "spearman" #Correletaion type
 CrossCorType               <- "fourier"    #Cross Correlation Type
+
 TypeDTW                    <- "fundamental"     #the type of contour to be detected in the dynamic time warping correlation
 
 # creates the object get() is looking for
@@ -341,9 +350,9 @@ Filter_Duration  <- cmpfun(Filter_Duration)
 # FILE PATHS
 # ==============================================================================
 
-AutoGenFileStoragePath <- "~/Library/CloudStorage/OneDrive-UCB-O365/Automated Detection Project/R/AutoGenResults"
-WorkingDirectory       <- "~/Library/CloudStorage/OneDrive-UCB-O365/Automated Detection Project/R/2 Pika Test"
-ML_TrainingDataStorage <- "~/Library/CloudStorage/OneDrive-UCB-O365/Automated Detection Project/R/ML Training data"
+AutoGenFileStoragePath <- "~/OneDrive - UCB-O365/Automated Detection Project/R/AutoGenResults"
+WorkingDirectory       <- "~/Documents/Automated-Pika-Detection/Target Files"
+ML_TrainingDataStorage <- "~/Documents/Automated-Pika-Detection/ML Training data"
 PlotStorage <- "~/Library/CloudStorage/OneDrive-UCB-O365/Automated Detection Project/R/Plots"
 
 setwd(WorkingDirectory)
@@ -356,11 +365,10 @@ setwd(WorkingDirectory)
 PikaReference <- imp_raven(
   warbler.format = TRUE,
   # converts to warbleR column names
-  all.data       = TRUE,
+  all.data       = FALSE,
   # only keep warbleR-required columns smaller footprint
   parallel = MaxCores
 )
-temp <- PikaReference$group
 gc()
 gc()
 # Select representative templates from acoustic space
@@ -369,7 +377,7 @@ PikaTemplate <- get_templates(
   n.sub.spaces = TemplateSubspaces,
   plot        = TRUE,
   nharmonics = nharmonics,
-  harmonicity = harmonicity,
+  # harmonicity = harmonicity,
   parallel = parallel,
   fast  = fast,
   ovlp = ovlp,
@@ -389,8 +397,8 @@ wav_files <- list.files(pattern = "\\.wav$", full.names = TRUE)
 # Run detection on each file, collect results
 GenPikaAnn <- lapply(wav_files, function(wav) {
   cat("Processing:", wav, "\n")
-  DetectCalls(
-    wavFileName    = wav,
+ detec <-  DetectCalls(
+    wavFileName    = "Large Training Set.wav",
     given_template = PikaTemplate,
     exportanntable = TRUE,
     minimum_dur = MinCallDuration,
@@ -403,6 +411,32 @@ gc()
 # Combine all detection tables into one dataframe
 GenPikaAnn <- do.call(rbind, GenPikaAnn)
 
+
+PikaWavTest <- readWave(
+  "~/Documents/Automated-Pika-Detection/Target Files/Large Training Set.wav"
+)
+
+par(oma = c(0, 0, 1, 0))
+label_spectro(
+  wave = PikaWavTest,
+  reference = PikaReference,
+  detection = detec,
+  smooth = 3,
+  # template.correlation = Correlations[[1]],
+  flim = c(0, 20),
+  tlim = c(73.6, 86.2),
+  # threshold = TemplateDetectionTreshhold,
+  hop.size = 10,
+  cexaxis = 1.2,
+  cexlab = 1.2,
+  ovlp = 90,
+  wl =1024,
+  palette = temp.colors,
+  collevels = seq(5, 95, 1),
+  dBref = 2 * 10e-5,
+   # fastdisp = TRUE
+)
+title(main="|    Computer detections comapred to reference material", cex.main = 1.5, line = 0, col.main = "black", outer = TRUE)
 # ==============================================================================
 # FEATURE EXTRACTION
 # ==============================================================================
@@ -415,6 +449,7 @@ gc()
 SpectroCoeff_Gen <- Spectro_Analyze(GenPikaAnn)
 gc()
 gc()
+
 # Cepstral (MFCC) features + PCA from reference annotations
 CepstralCoeff_Ref <- Cepstral_Analyze(PikaReference)
 gc()
@@ -505,7 +540,7 @@ Spectrographical_features$label <- "1"
 #Export ML training data to ML trainig data folder
 setwd(ML_TRainingDataStorage)
 write.table(
-  Spectrographical_features,
+  SpectroCoeff,
   file = "SpectroFeatures.txt",
   sep = "\t",
   row.names = FALSE
