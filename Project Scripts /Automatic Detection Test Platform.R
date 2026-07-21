@@ -82,7 +82,7 @@ gc()
 template <- get_templates(
   reference = PikaReference,
   path = WorkingDirectory,
-  n.sub.spaces = 3
+  n.sub.spaces = TemplateSubspaces
 )
 
 
@@ -95,8 +95,13 @@ TestCorrelations1 <- template_correlator(
   templates = template,
   files = c("Large Training Set.wav"),
   path = "~/Documents/Automated-Pika-Detection/Target Files",
-  wl = 512,
-  wl.freq = 1024
+  wl        = WindowLength,
+  wl.freq   = WindowLength_Freq,
+  ovlp = Overlap,
+  cores = MaxCores,
+  cor.method = CoorMethod,
+  type = CrossCorType,
+  fbtype = "mel"
 )
 
 # Correlate the template against the second (conversation) recording
@@ -104,8 +109,13 @@ TestCorrelations2 <- template_correlator(
   templates = template,
   files = c("PikaConvoWav.wav"),
   path = "~/Documents/Automated-Pika-Detection/Target Files",
-  wl = 512,
-  wl.freq = 1024
+  wl        = WindowLength,
+  wl.freq   = WindowLength_Freq,
+  ovlp = Overlap,
+  cores = MaxCores,
+  cor.method = CoorMethod,
+  type = CrossCorType,
+  fbtype = "mel"
 )
 
 
@@ -115,8 +125,8 @@ TestCorrelations2 <- template_correlator(
 
 detectiontest1 <- template_detector(
   template.correlations = TestCorrelations1,
-  threshold = Detection_Treshhold,
-  cores = maxcores
+  threshold = TemplateDetectionTreshhold,
+  cores = MaxCores
 )
 
 # Label detections against reference, then consolidate duplicate/overlapping
@@ -125,14 +135,14 @@ detectiontest1 <- consensus_detection(
   detection = label_detection(
     reference = PikaReference,
     detection = detectiontest1,
-    cores = maxcores
+    cores = MaxCores
   ),
   by = "scores",
-  cores = maxcores
+  cores = MaxCores
 )
 
 # Merge any remaining overlapping detections into single events
-detectiontest1 <- merge_overlaps(detectiontest1, pb = TRUE, cores = maxcores)
+detectiontest1 <- merge_overlaps(detectiontest1, pb = TRUE, cores = MaxCores)
 
 
 # -----------------------------------------------------------------------------
@@ -141,41 +151,44 @@ detectiontest1 <- merge_overlaps(detectiontest1, pb = TRUE, cores = maxcores)
 
 detectiontest2 <- template_detector(
   template.correlations = TestCorrelations2,
-  threshold = Detection_Treshhold,
-  cores = maxcores
+  threshold = TemplateDetectionTreshhold,
+  cores = MaxCores
 )
 
 detectiontest2 <- consensus_detection(
   detection = label_detection(
     reference = PikaReference,
     detection = detectiontest2,
-    cores = maxcores
+    cores = MaxCores
+
   ),
   by = "scores",
-  cores = maxcores
+  cores = MaxCores
 )
 
-detectiontest2 <- merge_overlaps(detectiontest2, pb = TRUE, cores = maxcores)
+detectiontest2 <- merge_overlaps(detectiontest2, pb = TRUE, cores = MaxCores
+                              )
 
 
 # -----------------------------------------------------------------------------
 # 8. Diagnose detection performance
 # -----------------------------------------------------------------------------
 
-# TODO: `TESTER` is not defined anywhere above 
 diagnoses <- diagnose_detection(
-  reference = PikaReference,
-  detection = TESTER,
-  cores = maxcores
+  reference = PikaReference[PikaReference$sound.files == "Large Training Set.wav",],
+  detection = detectiontest1,
+  cores = MaxCores,
+  solve.ambiguous = TRUE,
+  min.overlap = .2
 )
 
 # Optimize the correlation threshold against the reference annotations
 optimization <- optimize_template_detector(
   template.correlations = TestCorrelations1,
-  reference = PikaReference,
+  reference = PikaReference[PikaReference$sound.files == "Large Training Set.wav",],
   threshold = seq(0.3, 0.6, 0.01),
-  cores = maxcores,
-  min.overlap = 0.6
+  cores = MaxCores,
+  min.overlap = 0.3
 )
 
 
@@ -218,15 +231,15 @@ optimization <- optimize_template_detector(
 # correlation score overlays
 label_spectro(
   wave = PikaWavTest,
-  reference = TESTER,
+  reference = PikaReference[PikaReference$sound.files == "Large Training Set.wav",],
   detection = detectiontest1,
-  template.correlation = TestCorrelations1[[1]],
+  # template.correlation = TestCorrelations1[[1]],
   flim = c(0, 22),
   tlim = c(0, 40),
-  threshold = Detection_Treshhold,
+  # threshold = TemplateDetectionTreshhold,
   hop.size = 10,
   ovlp = 50,
-  palette = reverse.cm.colors,
+  palette = temp.colors,
   fastdisp = TRUE
 )
 

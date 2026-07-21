@@ -8,7 +8,7 @@
 # DETECTION VARIABLES
 # ==============================================================================
 
-TemplateDetectionTreshhold <- 0.343   # Confidence score threshold
+TemplateDetectionTreshhold <- 0.34   # Confidence score threshold
 MaxCores                   <- 14     # Max cores for parallel processing
 TemplateSubspaces          <- 3     #No of templates used -1
 FreqRange                  <- c(.9, 17) # Frequency range in kHz
@@ -18,7 +18,7 @@ WindowLength_MFCC          <- 512   # used only for mfcc_stats
 
 MaxCallDuration            <- 1        #Max duration
 MinCallDuration            <-.1        #Min duration
-WindowLength_Freq          <- 2048  # FFT Frequancy window length
+WindowLength_Freq          <- 1024  # FFT Frequancy window length
 
 CepstralBands              <- 35     # Number of cepstral coefficiants calculated
 WarpedCepstralBands        <- 50     # Number of warped coefficiants calculated
@@ -32,8 +32,9 @@ No.Harmonics               <- 2     #No of Harmonics to analyse per signal, the 
 
 Speed_Fast                 <- TRUE  #Fast Computer
 
-CoorMethod                 <- "spearman" #Correletaion type
+CoorMethod                 <- "pearson" #Correletaion type
 CrossCorType               <- "fourier"    #Cross Correlation Type
+#TODO confusing name above
 
 TypeDTW                    <- "fundamental"     #the type of contour to be detected in the dynamic time warping correlation
 
@@ -257,10 +258,16 @@ DetectCalls <- function(wavFileName,
   # Cross-correlate template against recording
   Correlations <- template_correlator(templates = given_template,
                                       files     = c(wav),
-                                      wl        = WindowLength)
+                                      wl        = WindowLength,
+                                      wl.freq   = WindowLength_Freq,
+                                      ovlp = Overlap,
+                                      cores = MaxCores,
+                                      cor.method = CoorMethod,
+                                      type = CrossCorType,
+                                      fbtype = "mel")
   
   # Run template detector
-  cat("Detecting Pikas:", wav, "\n")
+  cat("Detecting Pikas in:", wav, "\n")
   Detections <- template_detector(
     template.correlations = Correlations,
     threshold             = TemplateDetectionTreshhold,
