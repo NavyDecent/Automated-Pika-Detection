@@ -1,4 +1,4 @@
-# File Name:       Individual Identification
+# File Name:       Functions And Setup 
 # Author:          Ayooluwa Adeyinka
 # Created:         July 20, 2026
 # Description:     This file contains all functions and setup procedures needed for this project.
@@ -11,7 +11,7 @@
 TemplateDetectionTreshhold <- 0.34   # Confidence score threshold
 MaxCores                   <- 14     # Max cores for parallel processing
 TemplateSubspaces          <- 3     #No of templates used -1
-FreqRange                  <- c(.9, 17) # Frequency range in kHz
+FreqRange                  <- c(.5, 17) # Frequency range in kHz
 WindowLength               <- 512   # FFT time window length
 WindowLength_MFCC          <- 512   # used only for mfcc_stats
 # wl and wl.freq split not supported by mfcc_stats
@@ -20,13 +20,13 @@ MaxCallDuration            <- 1        #Max duration
 MinCallDuration            <-.1        #Min duration
 WindowLength_Freq          <- 1024  # FFT Frequancy window length
 
-CepstralBands              <- 35     # Number of cepstral coefficiants calculated
-WarpedCepstralBands        <- 50     # Number of warped coefficiants calculated
+CepstralBands              <- 18     # Number of cepstral coefficiants calculated
+WarpedCepstralBands        <- 60     # Number of warped coefficiants calculated
 
 Smoothness                 <- .3     #smoothing value of spectrogragh
 HarmonicityBool            <- FALSE   #Calculate harmonicty
 
-Overlap                    <- 90     #Overlap of windows in FFT and Specrograghiical analyisis
+Overlap                    <- 50     #Overlap of windows in FFT and Specrograghiical analyisis
 No.Harmonics               <- 2     #No of Harmonics to analyse per signal, the higher the better but may start to ignore fainter signals
 
 
@@ -264,7 +264,19 @@ DetectCalls <- function(wavFileName,
                                       cores = MaxCores,
                                       cor.method = CoorMethod,
                                       type = CrossCorType,
+<<<<<<< HEAD
                                       fbtype = "mel")
+=======
+<<<<<<< HEAD
+                                      fbtype = "mel")
+=======
+                                      fbtype = "mel",
+                                      minfreq = FreqRange[1],
+                                      maxfreq = FreqRange[2],
+                                      numcep = CepstralBands,
+                                      nbands = WarpedCepstralBands)
+>>>>>>> 0a64e5b (Better documentation and defualt weights for pika call detection.)
+>>>>>>> 61565bb (Better documenatation and defualt weights for call detection.)
   
   # Run template detector
   cat("Detecting Pikas in:", wav, "\n")

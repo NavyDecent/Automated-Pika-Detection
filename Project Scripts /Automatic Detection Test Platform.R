@@ -179,7 +179,15 @@ diagnoses <- diagnose_detection(
   detection = detectiontest1,
   cores = MaxCores,
   solve.ambiguous = TRUE,
+<<<<<<< HEAD
   min.overlap = .2
+=======
+<<<<<<< HEAD
+  min.overlap = .2
+=======
+  min.overlap = .3
+>>>>>>> 0a64e5b (Better documentation and defualt weights for pika call detection.)
+>>>>>>> 61565bb (Better documenatation and defualt weights for call detection.)
 )
 
 # Optimize the correlation threshold against the reference annotations
