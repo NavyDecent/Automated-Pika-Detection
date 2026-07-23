@@ -53,51 +53,51 @@ wl.freq                    <- WindowLength_Freq
 
 # Takes annotation table, returns spectro analysis PCA PC1 & PC2 with NAs removed
 # Installs and loads libraries needed to be archived
-Load_Packages <- function(PackageList) {
-  NeededPackages <- PackageList[!(PackageList %in% (.packages()))]
-  inPackages <- NeededPackages[!(NeededPackages %in% installed.packages()[, "Package"])]
-  
-  if (length(inPackages) > 0) {
-    message("Installing missing packages: ",
-            paste(inPackages, collapse = ", "))
-    for (pack in inPackages) {
-      tryCatch({
-        install.packages(pack, dependencies = TRUE)
-      }, error = function(e) {
-        cat("Skipping install due to error:",
-            pack,
-            "\n",
-            conditionMessage(e),
-            "\n")
-        NeededPackages <<- NeededPackages[NeededPackages != pack]
-      })
-    }
-    cat("All Packages Installed \n")
-  } else {
-    cat("All Packages Already Installed \n")
-  }
-  
-  
-  if (length(NeededPackages) > 0) {
-    cat("Loading: \n")
-    for (pack in NeededPackages) {
-      tryCatch({
-        cat("Attempting to load:", pack, "\n")
-        library(pack, character.only = TRUE)
-        cat("Loaded:", pack, "\n")
-      }, error = function(e) {
-        cat("Skipping load due to error:",
-            pack,
-            "\n",
-            conditionMessage(e),
-            "\n")
-      })
-    }
-  } else {
-    cat("All Packages Already Loaded \n")
-  }
-  
-}
+# Load_Packages <- function(PackageList) {
+#   NeededPackages <- PackageList[!(PackageList %in% (.packages()))]
+#   inPackages <- NeededPackages[!(NeededPackages %in% installed.packages()[, "Package"])]
+#   
+#   if (length(inPackages) > 0) {
+#     message("Installing missing packages: ",
+#             paste(inPackages, collapse = ", "))
+#     for (pack in inPackages) {
+#       tryCatch({
+#         install.packages(pack, dependencies = TRUE)
+#       }, error = function(e) {
+#         cat("Skipping install due to error:",
+#             pack,
+#             "\n",
+#             conditionMessage(e),
+#             "\n")
+#         NeededPackages <<- NeededPackages[NeededPackages != pack]
+#       })
+#     }
+#     cat("All Packages Installed \n")
+#   } else {
+#     cat("All Packages Already Installed \n")
+#   }
+#   
+#   
+#   if (length(NeededPackages) > 0) {
+#     cat("Loading: \n")
+#     for (pack in NeededPackages) {
+#       tryCatch({
+#         cat("Attempting to load:", pack, "\n")
+#         library(pack, character.only = TRUE)
+#         cat("Loaded:", pack, "\n")
+#       }, error = function(e) {
+#         cat("Skipping load due to error:",
+#             pack,
+#             "\n",
+#             conditionMessage(e),
+#             "\n")
+#       })
+#     }
+#   } else {
+#     cat("All Packages Already Loaded \n")
+#   }
+#   
+# }
 
 # Takes annotation table, returns spectral PCA (PC1 & PC2) with NAs removed
 Spectro_Analyze <- function(AnnTable) {
@@ -264,19 +264,11 @@ DetectCalls <- function(wavFileName,
                                       cores = MaxCores,
                                       cor.method = CoorMethod,
                                       type = CrossCorType,
-<<<<<<< HEAD
-                                      fbtype = "mel")
-=======
-<<<<<<< HEAD
-                                      fbtype = "mel")
-=======
                                       fbtype = "mel",
                                       minfreq = FreqRange[1],
                                       maxfreq = FreqRange[2],
                                       numcep = CepstralBands,
                                       nbands = WarpedCepstralBands)
->>>>>>> 0a64e5b (Better documentation and defualt weights for pika call detection.)
->>>>>>> 61565bb (Better documenatation and defualt weights for call detection.)
   
   # Run template detector
   cat("Detecting Pikas in:", wav, "\n")
